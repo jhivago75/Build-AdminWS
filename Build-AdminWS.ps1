@@ -15,6 +15,7 @@ Install-WindowsFeature -IncludeAllSubFeature RSAT
 
 # Update PowerShellGet
 Install-PackageProvider -Name NuGet -Force
+Install-Module PowerShellGet
 Update-Module PowerShellGet
 
 # Install Powershell modules
