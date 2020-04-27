@@ -1,6 +1,11 @@
 #profile.ps1
 # Original source https://github.com/SUBnet192/Scripts
 
+#======================================================================================
+# Set TLS 1.2 for github downloads
+#======================================================================================
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
 Import-Module PSColor -ErrorAction SilentlyContinue
 
 #======================================================================================
@@ -29,8 +34,6 @@ Clear-Host
 #======================================================================================
 
 Set-PSReadlineKeyHandler -Chord CTRL+Tab -Function Complete
-Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadlineKeyHandler -Key DownArrow -Function HistorySearchForward
 Set-PSReadlineOption -ShowToolTips -BellStyle Visual
 
 #======================================================================================
@@ -43,7 +46,7 @@ function here { Invoke-Item . }
 function Find-Files ([string] $glob) { get-childitem -recurse -include $glob }
 function Remove-Directory ([string] $glob) { remove-item -recurse -force $glob }
 Function Edit-Profile() { vsc $PROFILE.AllUsersAllHosts }
-#Function TraceRoute() { Test-Connection -Traceroute -TargetName } # Only for PS 6 and above
+Function _Date () { Get-Date -Format yyyy-MM-dd }
 
 #======================================================================================
 # Start Elevated session
@@ -55,12 +58,21 @@ function Test-Administrator {
 }
 
 function Start-PsElevatedSession { 
-  #Open a new elevated powershell window
+  # Open a new elevated powershell window
   If ( ! (Test-Administrator) ) {
     start-process powershell -Verb runas
   }
   Else { Write-Warning "Session is already elevated" }
 } 
+
+#======================================================================================
+# Custom Window Title
+#======================================================================================
+if (Test-Administrator) {
+  $host.UI.RawUI.WindowTitle += " $(whoami) - $ENV:COMPUTERNAME"
+} else {
+  $host.UI.RawUI.WindowTitle += " $(whoami) - $ENV:COMPUTERNAME"
+}
 
 #======================================================================================
 # 'Go' command and targets
@@ -92,13 +104,8 @@ $go_locations.Add("scripts", "C:\Scripts")
 #======================================================================================
 
 function Global:Prompt {
-  $lastResult = Invoke-Expression '$?'
   $Time = Get-Date -Format "HH:mm"
   $Directory = (Get-Location).Path
-  
-  if (!$lastResult) {
-    Write-Host "Last command exited with an error." -ForegroundColor Red
-  }
 
   Write-Host "[$((Get-History).Count + 1)] " -NoNewline
   Write-Host "[$Time] " -ForegroundColor Yellow -NoNewline
@@ -115,22 +122,23 @@ function Global:Prompt {
 # Define aliases
 #======================================================================================
 
-Set-Alias -name su -Value Start-PsElevatedSession
-Set-Alias -name npp -Value Notepad++.exe
-Set-Alias -name nano -value code
-Set-Alias -name vsc -value code
-Set-Alias -name ff -Value Find-Files 
-Set-Alias -name rmd -value Remove-Directory 
-Set-Alias -name ih -value invoke-history
+  Set-Alias -name su -Value Start-PsElevatedSession
+  Set-Alias -name npp -Value Notepad++.exe
+  Set-Alias -name nano -value code
+  Set-Alias -name vsc -value code
+  Set-Alias -name ff -Value Find-Files 
+  Set-Alias -name rmd -value Remove-Directory 
+  Set-Alias -name ih -value invoke-history
+
 
 #======================================================================================
 # Final execution
 #======================================================================================
-If ( ! (Test-Administrator) ) {
-  Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-}
-Else { Set-ExecutionPolicy RemoteSigned -Force }
-
+ 
+  If (!(Test-Administrator)) {
+    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+  } Else { Set-ExecutionPolicy RemoteSigned -Force }
+  
 Go scripts
 
 #======================================================================================
@@ -140,13 +148,13 @@ Go scripts
 $block = @"
  
                                   #&(// //#&#                                   
-                              /*               ./.                SECURE ACCESS WORKSTATION        
-                            %               .**.   .                            
-                           (                .*,..    *            Logged in user: $(whoami)        
-                          @                           %           Elevated Privileges: $(Test-Administrator)
-                          (                   .       .                         
-                          (  ./##,      ,/(#%%*        /                        
-                          ( .&%/#@%    (@@(.*%@#       .                        
+                              /*               ./.                            ADMINISTRATIVE WORKSTATION        
+                            %               .**.   .              ==================================================             
+                           (                .*,..    *            Date:                 $(_Date)        
+                          @                           %           Logged in user:       $(whoami)
+                          (                   .       .           PowerShell Version:   $($PSVersionTable.PSVersion)
+                          (  ./##,      ,/(#%%*        /          Elevated Privileges:  $(Test-Administrator)
+                          ( .&%/#@%    (@@(.*%@#       .                         
                           # ,%  ,,&.   *@,    (@,      .                        
                           @  %# ,/(%%#((##,  (@%       ,                        
                           @  ./(###%%%%%%%%%%%%(       ,.                       
@@ -181,5 +189,21 @@ $block = @"
 
  
 "@
+
+
+$iseblock = @"
  
-Write-Host $block -ForegroundColor Green
+           ADMINISTRATIVE WORKSTATION        
+==================================================
+Date:                 $(_Date)
+Logged in user:       $(whoami)
+PowerShell Version:   $($PSVersionTable.PSVersion)
+Elevated Privileges:  $(Test-Administrator)
+
+"@
+
+if (!(Test-Path Variable:PSise)) {
+  Write-Host $block -ForegroundColor Green
+} else {
+  Write-Host $iseblock -ForegroundColor Green
+}
