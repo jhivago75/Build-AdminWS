@@ -24,6 +24,7 @@ Install-Module -Name Testimo
 Install-Module -Name DSInternals
 Install-Module -Name PSPKI
 Install-Module -Name PSColor -Force
+Install-Module -Name ExchangeOnlineManagement
 Find-Module -Name SUBNET192* | Install-Module
 
 # Update the help files
