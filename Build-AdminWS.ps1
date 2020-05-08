@@ -10,13 +10,14 @@ Set-PSRepository PSGallery -InstallationPolicy Trusted
 Set-ExecutionPolicy RemoteSigned -Force
 if (-Not(Test-Path "C:\Scripts")) { New-Item -Path C:\ -Name Scripts -ItemType Directory }
 
-# Install RSAT
-Install-WindowsFeature -IncludeAllSubFeature RSAT
-
 # Update PowerShellGet
 Install-PackageProvider -Name NuGet -Force
 Install-Module PowerShellGet -Force
 #Update-Module PowerShellGet
+
+# Install RSAT
+#Install-WindowsFeature -IncludeAllSubFeature RSAT
+Get-WindowsCapability -Name RSAT* -Online | Add-WindowsCapability –Online
 
 # Install Powershell modules
 Install-Module -Name VMware.PowerCLI
