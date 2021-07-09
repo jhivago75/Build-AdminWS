@@ -36,13 +36,11 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-WebRequest -uri "https:
 Choco install chocolatey-gui -y
 
 # Essential tools
-Choco install filezilla -y
 Choco install openssh -y
 Choco install ad-tidy-free -y
 
 # Microsoft Tools
 Choco install sysinternals -y
-Choco install vscode -y
 Choco install vscode-powershell -y
 
 # SQL Related
