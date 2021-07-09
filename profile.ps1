@@ -47,6 +47,7 @@ function Find-Files ([string] $glob) { get-childitem -recurse -include $glob }
 function Remove-Directory ([string] $glob) { remove-item -recurse -force $glob }
 Function Edit-Profile() { vsc $PROFILE.AllUsersAllHosts }
 Function _Date () { Get-Date -Format yyyy-MM-dd }
+Function _Touch ([string] $_NewFile) { New-Item "$_NewFile" -ItemType File }
 
 #======================================================================================
 # Start Elevated session
@@ -110,9 +111,9 @@ function Global:Prompt {
   Write-Host "[$((Get-History).Count + 1)] " -NoNewline
   Write-Host "[$Time] " -ForegroundColor Yellow -NoNewline
   if (Test-Administrator) {
-    Write-Host "$Directory #" -NoNewline
+    Write-Host "$Directory#" -NoNewline
   } else {
-    Write-Host "$Directory >" -NoNewline
+    Write-Host "$Directory$" -NoNewline
   }
 
   return " "
@@ -129,15 +130,16 @@ function Global:Prompt {
   Set-Alias -name ff -Value Find-Files 
   Set-Alias -name rmd -value Remove-Directory 
   Set-Alias -name ih -value invoke-history
+  Set-Alias -name touch -value _Touch
 
 
 #======================================================================================
 # Final execution
 #======================================================================================
  
-  If (!(Test-Administrator)) {
-    Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-  } Else { Set-ExecutionPolicy RemoteSigned -Force }
+If (!(Test-Administrator)) {
+  Set-ExecutionPolicy Bypass -Scope CurrentUser -Force
+} Else { Set-ExecutionPolicy Bypass -Force }
   
 Go scripts
 
@@ -154,7 +156,7 @@ $block = @"
                           @                           %           Logged in user:       $(whoami)
                           (                   .       .           PowerShell Version:   $($PSVersionTable.PSVersion)
                           (  ./##,      ,/(#%%*        /          Elevated Privileges:  $(Test-Administrator)
-                          ( .&%/#@%    (@@(.*%@#       .                         
+                          ( .&%/#@%    (@@(.*%@#       .          Excecution Policy:    $(Get-ExecutionPolicy) 
                           # ,%  ,,&.   *@,    (@,      .                        
                           @  %# ,/(%%#((##,  (@%       ,                        
                           @  ./(###%%%%%%%%%%%%(       ,.                       
