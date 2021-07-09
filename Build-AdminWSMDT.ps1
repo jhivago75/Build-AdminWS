@@ -1,7 +1,7 @@
 # Original source https://github.com/SUBnet192/Scripts
 
 # Call this script from a powershell command prompt using this command:
-# Invoke-WebRequest -uri "https://raw.githubusercontent.com/jhivago75/Build-AdminWS/master/Build-AdminJumpWS.ps1"
+# Invoke-WebRequest -uri "https://raw.githubusercontent.com/jhivago75/Build-AdminWS/master/Build-AdminWSMDT.ps1"
 
 # Preparation
 Unregister-PSRepository -Name 'PSGallery'
@@ -35,29 +35,9 @@ Update-Help
 Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-WebRequest -uri "https://chocolatey.org/install.ps1" -UseBasicParsing | Invoke-Expression
 Choco install chocolatey-gui -y
 
-# Visual C++ Rutimes
-choco install vcredist2005 -y
-choco install vcredist2008 -y
-choco install vcredist2010 -y
-choco install vcredist2012 -y
-choco install vcredist2013 -y
-choco install vcredist140 -y
-
 # Essential tools
-Choco install notepadplusplus -y
-Choco install googlechrome -y
-choco install microsoft-edge -y
-Choco install adobereader -y
-Choco install 7zip -y
-Choco install winscp -y
-choco install putty.install -y
 Choco install filezilla -y
 Choco install openssh -y
-Choco install git -y
-#choco install mremoteng -y
-Choco install rdmfree -y
-Choco install vlc -y
-Choco install cutepdf -y
 Choco install ad-tidy-free -y
 
 # Microsoft Tools
@@ -87,7 +67,8 @@ Remove-Item -Path C:\Temp -Recurse -Force
 Remove-Item C:\Scripts\specops.exe
 
 # Create default powershell profile for All Users / All Hosts
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jhivago75/Build-AdminWS/master/profile.ps1" -Outfile $PROFILE.AllusersAllHosts
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jhivago75/Build-AdminWS/master/profile-mdt.ps1" -Outfile $PROFILE.AllusersAllHosts
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jhivago75/Build-AdminWS/master/profile-mdt.ps1" -Outfile "C:\Program Files\PowerShell\7\profile.ps1"
 
 # Reboot to complete installation
-Restart-Computer
+#Restart-Computer
